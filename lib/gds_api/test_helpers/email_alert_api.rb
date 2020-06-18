@@ -271,6 +271,36 @@ module GdsApi
           .to_return(status: 404)
       end
 
+      def stub_email_alert_api_get_oidc_url(destination, nonce, auth_uri)
+        query_string = Rack::Utils.build_nested_query(destination: destination)
+        stub_request(:get, "#{EMAIL_ALERT_API_ENDPOINT}/subscribers/oidc?#{query_string}")
+          .to_return(status: 200, body: { nonce: nonce, auth_uri: auth_uri }.to_json)
+      end
+
+      def stub_email_alert_api_verify_oidc_response(code, nonce, destination, user_id, subscriber_id, address)
+        stub_request(:post, "#{EMAIL_ALERT_API_ENDPOINT}/subscribers/oidc")
+          .with(body: { code: code, nonce: nonce, destination: destination })
+          .to_return(status: 200, body: get_subscriber_response(subscriber_id, address).merge(user_id: user_id).to_json)
+      end
+
+      def stub_email_alert_api_verify_oidc_response_unverified(code, nonce, destination, user_id)
+        stub_request(:post, "#{EMAIL_ALERT_API_ENDPOINT}/subscribers/oidc")
+          .with(body: { code: code, nonce: nonce, destination: destination })
+          .to_return(status: 200, body: { user_id: user_id }.to_json)
+      end
+
+      def stub_email_alert_api_verify_oidc_response_no_subscriber(code, nonce, destination)
+        stub_request(:post, "#{EMAIL_ALERT_API_ENDPOINT}/subscribers/oidc")
+          .with(body: { code: code, nonce: nonce, destination: destination })
+          .to_return(status: 404)
+      end
+
+      def stub_email_alert_api_verify_oidc_response_invalid(code, nonce, destination)
+        stub_request(:post, "#{EMAIL_ALERT_API_ENDPOINT}/subscribers/oidc")
+          .with(body: { code: code, nonce: nonce, destination: destination })
+          .to_return(status: 422)
+      end
+
       def assert_unsubscribed(uuid)
         assert_requested(:post, "#{EMAIL_ALERT_API_ENDPOINT}/unsubscribe/#{uuid}", times: 1)
       end

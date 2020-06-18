@@ -254,6 +254,32 @@ class GdsApi::EmailAlertApi < GdsApi::Base
     )
   end
 
+  # Fetch an OIDC auth URI which can be used to verify a user has an account with a validated email
+  #
+  # @param [string]  destination  Path on GOV.UK that subscriber will be sent to after logging in
+  #
+  # @return  [Hash]  nonce and auth URI
+  def get_oidc_url(destination:)
+    query_string = nested_query_string(destination: destination)
+    get_json("#{endpoint}/subscribers/oidc?" + query_string)
+  end
+
+  # Validate an OIDC response and return the associated user, if their email is validated
+  #
+  # @param [string]  code         Code provided by the OIDC identity provider
+  # @param [string]  nonce        Nonce returned by the previous call to get_oidc_url
+  # @param [string]  destination  Destination passed to the previous call to get_oidc_url
+  #
+  # @return  [Hash]  user_id and subscriber
+  def verify_oidc_response(code:, nonce:, destination:)
+    post_json(
+      "#{endpoint}/subscribers/oidc",
+      code: code,
+      nonce: nonce,
+      destination: destination,
+    )
+  end
+
 private
 
   def nested_query_string(params)

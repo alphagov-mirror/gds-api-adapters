@@ -695,4 +695,40 @@ describe GdsApi::EmailAlertApi do
       assert_equal(201, api_response.code)
     end
   end
+
+  describe "get_oidc_url" do
+    it "returns 200" do
+      stub_email_alert_api_get_oidc_url("/test", "nonce", "auth-uri")
+      api_response = api_client.get_oidc_url(destination: "/test")
+      assert_equal(200, api_response.code)
+    end
+  end
+
+  describe "verify_oidc_response" do
+    it "returns 200" do
+      stub_email_alert_api_verify_oidc_response("code", "nonce", "/test", "user-id", "subscriber-id", "test@example.com")
+      api_response = api_client.verify_oidc_response(code: "code", nonce: "nonce", destination: "/test")
+      assert_equal(200, api_response.code)
+    end
+
+    it "returns 200 if unverified" do
+      stub_email_alert_api_verify_oidc_response_unverified("code", "nonce", "/test", "user-id")
+      api_response = api_client.verify_oidc_response(code: "code", nonce: "nonce", destination: "/test")
+      assert_equal(200, api_response.code)
+    end
+
+    it "returns 404 if missing" do
+      stub_email_alert_api_verify_oidc_response_no_subscriber("code", "nonce", "/test")
+      assert_raises GdsApi::HTTPNotFound do
+        api_client.verify_oidc_response(code: "code", nonce: "nonce", destination: "/test")
+      end
+    end
+
+    it "returns 422 if invalid" do
+      stub_email_alert_api_verify_oidc_response_invalid("code", "nonce", "/test")
+      assert_raises GdsApi::HTTPUnprocessableEntity do
+        api_client.verify_oidc_response(code: "code", nonce: "nonce", destination: "/test")
+      end
+    end
+  end
 end
