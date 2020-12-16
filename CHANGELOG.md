@@ -1,3 +1,8 @@
+# 67.3.0
+
+* Remove support for unused subscription_url subscriber list field
+* Remove support for unused govdelivery_title subscriber list field
+
 # 67.2.1
 
 * Fix bug in special route publishing
