@@ -1,3 +1,7 @@
+# Unversioned
+
+* Remove redundant adapter to send ad-hoc email
+
 # 68.0.0
 
 * BREAKING: make subscribe test helper interface more flexible
