@@ -1,5 +1,6 @@
-# Unreleased
+# 68.1.0
 
+* Add country_name to the local links manager adapter
 * Add a `GdsApi::HTTPBadRequest` exception
 * Remove redundant adapter to send ad-hoc email
 
